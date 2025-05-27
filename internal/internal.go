@@ -94,6 +94,10 @@ func (a *Application) isInWhere(obj string) bool {
 	return slices.Contains(objs, strings.ToLower(obj))
 }
 
+func (a *Application) removeUnnecessaryAnnotations(obj metav1.ObjectMeta) {
+	delete(obj.Annotations, "kubectl.kubernetes.io/last-applied-configuration")
+}
+
 func (a *Application) getPods(ctx context.Context) error {
 	const typeOf = "Pods"
 
@@ -109,6 +113,8 @@ func (a *Application) getPods(ctx context.Context) error {
 	}
 
 	for _, object := range objects.Items {
+		a.removeUnnecessaryAnnotations(object.ObjectMeta)
+
 		a.KubernetesObjects = append(a.KubernetesObjects, KubernetesObject{
 			Kind:      typeOf,
 			Name:      object.Name,
@@ -135,6 +141,8 @@ func (a *Application) getConfigmaps(ctx context.Context) error {
 	}
 
 	for _, object := range objects.Items {
+		a.removeUnnecessaryAnnotations(object.ObjectMeta)
+
 		a.KubernetesObjects = append(a.KubernetesObjects, KubernetesObject{
 			Kind:      typeOf,
 			Name:      object.Name,
@@ -161,6 +169,8 @@ func (a *Application) getDeployments(ctx context.Context) error {
 	}
 
 	for _, object := range objects.Items {
+		a.removeUnnecessaryAnnotations(object.ObjectMeta)
+
 		a.KubernetesObjects = append(a.KubernetesObjects, KubernetesObject{
 			Kind:      typeOf,
 			Name:      object.Name,
@@ -187,6 +197,8 @@ func (a *Application) getStatefulSets(ctx context.Context) error {
 	}
 
 	for _, object := range objects.Items {
+		a.removeUnnecessaryAnnotations(object.ObjectMeta)
+
 		a.KubernetesObjects = append(a.KubernetesObjects, KubernetesObject{
 			Kind:      typeOf,
 			Name:      object.Name,
@@ -213,6 +225,8 @@ func (a *Application) getCronJobs(ctx context.Context) error {
 	}
 
 	for _, object := range objects.Items {
+		a.removeUnnecessaryAnnotations(object.ObjectMeta)
+
 		a.KubernetesObjects = append(a.KubernetesObjects, KubernetesObject{
 			Kind:      typeOf,
 			Name:      object.Name,
