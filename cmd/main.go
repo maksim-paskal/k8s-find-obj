@@ -15,7 +15,7 @@ func main() {
 	application := internal.NewApplication()
 
 	flag.StringVar(&application.Kubeconfig, "kubeconfig", os.Getenv("KUBECONFIG"), "Path to the kubeconfig file to use for CLI requests.")
-	flag.StringVar(&application.WhereToSearch, "where", "pods,configMaps,deployments,cronJobs,statefulSets,secrets", "Where to run the application. Options: local, cluster")
+	flag.StringVar(&application.WhereToSearch, "where", "*", "Where to run the application. Options: local, cluster")
 	flag.StringVar(&application.WhatToSearch, "find", "", "What to search for.")
 	flag.StringVar(&application.Namespace, "namespace", "", "Namespace to use for the search.")
 	flag.StringVar(&application.Except, "except", "", "What to exclude from the search.")

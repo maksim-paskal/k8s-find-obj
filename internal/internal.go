@@ -89,6 +89,10 @@ func (a *Application) Init(ctx context.Context) error {
 }
 
 func (a *Application) isInWhere(obj string) bool {
+	if a.WhereToSearch == "*" {
+		return true
+	}
+
 	objs := strings.Split(strings.ToLower(a.WhereToSearch), ",")
 
 	return slices.Contains(objs, strings.ToLower(obj))
@@ -277,6 +281,34 @@ func (a *Application) search() {
 	}
 }
 
+func (a *Application) getIngress(ctx context.Context) error {
+	const typeOf = "Ingress"
+
+	if !a.isInWhere(typeOf) {
+		return nil
+	}
+
+	slog.Info("Getting " + typeOf + " ...")
+
+	objects, err := a.clientset.NetworkingV1().Ingresses(a.Namespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return errors.Wrap(err, "error in "+typeOf)
+	}
+
+	for _, object := range objects.Items {
+		a.removeUnnecessaryAnnotations(object.ObjectMeta)
+
+		a.KubernetesObjects = append(a.KubernetesObjects, KubernetesObject{
+			Kind:      typeOf,
+			Name:      object.Name,
+			Namespace: object.Namespace,
+			Object:    object.String(),
+		})
+	}
+
+	return nil
+}
+
 type searchFunc func(context.Context) error
 
 func (a *Application) Run(ctx context.Context) error {
@@ -286,6 +318,7 @@ func (a *Application) Run(ctx context.Context) error {
 		a.getDeployments,
 		a.getStatefulSets,
 		a.getCronJobs,
+		a.getIngress,
 	}
 
 	for _, f := range searchFuncs {
